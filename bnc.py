@@ -13,12 +13,13 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Initialize Binance Client
 api_key = os.environ.get('BINANCE_API_KEY')
 api_secret = os.environ.get('BINANCE_API_SECRET')
+testnet = os.environ.get('IS_TESTNET', True)
+client = Client(api_key, api_secret, testnet=testnet)
 
-client = Client(api_key, api_secret, testnet=True)
 
 
 def get_user_input():
-    # print(client.FUTURES_TESTNET_URL, api_key)
+    # print("test", testnet, client.API_URL, client.API_TESTNET_URL)
     symbol = input("Enter the symbol (e.g., 'BTCUSDT'): ")
     quantity = float(input("Enter total quantity to trade: "))
     duration = float(input("Enter TWAP duration in hours: "))
