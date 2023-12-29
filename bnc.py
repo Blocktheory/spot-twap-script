@@ -1,5 +1,4 @@
 from binance import Client
-from binance.enums import SIDE_BUY, ORDER_TYPE_MARKET
 from dotenv import load_dotenv
 import time
 import datetime
@@ -8,7 +7,8 @@ import logging
 
 load_dotenv()
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Initialize Binance Client
 api_key = os.environ.get('BINANCE_API_KEY')
@@ -16,41 +16,30 @@ api_secret = os.environ.get('BINANCE_API_SECRET')
 testnet = os.environ.get('IS_TESTNET', True)
 client = Client(api_key, api_secret, testnet=testnet)
 
-
-
-def get_user_input():
-    # print("test", testnet, client.API_URL, client.API_TESTNET_URL)
-    symbol = input("Enter the symbol (e.g., 'BTCUSDT'): ")
-    quantity = float(input("Enter total quantity to trade: "))
-    duration = float(input("Enter TWAP duration in hours: "))
-    return symbol, quantity, duration
-
-
-
-def execute_twap_order(symbol, total_quantity, duration_hours, interval_seconds=60):
+def execute_twap_order(token_pair_symbol, trade_type, total_quantity, duration_hours, interval_minutes=1):
     end_time = datetime.datetime.now() + datetime.timedelta(hours=duration_hours)
-    total_intervals = duration_hours * 3600 / interval_seconds
-    order_quantity = total_quantity / total_intervals
-
+    interval_seconds = interval_minutes * 60
     while datetime.datetime.now() < end_time:
         try:
-            # Execute market order
             order = client.create_order(
-                symbol=symbol,
-                side=SIDE_BUY,
-                type=ORDER_TYPE_MARKET,
-                quantity=order_quantity
+                symbol=token_pair_symbol,
+                side=Client.SIDE_BUY if trade_type.lower() == "buy" else Client.SIDE_SELL,
+                type=Client.ORDER_TYPE_MARKET,
+                quantity=total_quantity
             )
-            logging.info(f"Order executed: {order}")
+            print(f"Order executed: {order}")
         except Exception as e:
-            logging.error(f"Error executing order: {e}")
-
+            print(f"Error executing order: {e}")
+        print(f"waiting {interval_minutes} minutes for next order...")
         time.sleep(interval_seconds)
 
+# Extra functions to get meta data if required
+def get_prices_list():
+    prices = client.get_all_tickers()
+    return prices
 
-def main():
-    symbol, quantity, duration = get_user_input()
-    execute_twap_order(symbol, quantity, duration)
+def check_balance(asset):
+    return client.get_asset_balance(asset=asset)
 
-if __name__ == "__main__":
-    main()
+def get_open_orders(token_pair_symbol):
+    return client.get_open_orders(symbol=token_pair_symbol)
