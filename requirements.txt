@@ -1,4 +1,4 @@
 python-binance==1.0.19
 python-dotenv==1.0.0
 gate-api==4.60.2
-pymexc==1.0.10
+mexc_sdk==0.0.1

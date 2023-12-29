@@ -2,13 +2,13 @@ import time
 import datetime
 import os
 from dotenv import load_dotenv
-from pymexc import spot
+from mexc_sdk import Spot
 
 load_dotenv()
 key = os.environ.get('MEXC_API_KEY')
 secret = os.environ.get('MEXC_API_SECRET')
 
-client = spot.HTTP(api_key=key, api_secret=secret)
+client = Spot(api_key=key, api_secret=secret)
 
 def execute(symbol, trade_type, order_quantity, duration_hours, interval_minutes=1):
     end_time = datetime.datetime.now() + datetime.timedelta(hours=duration_hours)
