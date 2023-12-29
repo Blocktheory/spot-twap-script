@@ -5,27 +5,25 @@ from dotenv import load_dotenv
 from pymexc import spot
 
 load_dotenv()
+key = os.environ.get('MEXC_API_KEY')
+secret = os.environ.get('MEXC_API_SECRET')
 
-spot_client = spot.HTTP(api_key = os.getenv("MEXC_API_KEY"), api_secret = os.getenv("MEXC_API_SECRET"))
+client = spot.HTTP(api_key=key, api_secret=secret)
 
-def execute(symbol, total_quantity, duration_hours, interval_seconds=60):
+def execute(symbol, trade_type, order_quantity, duration_hours, interval_minutes=1):
     end_time = datetime.datetime.now() + datetime.timedelta(hours=duration_hours)
-    total_intervals = duration_hours * 3600 / interval_seconds
-    order_quantity = total_quantity / total_intervals
-    # print("order_quantity", order_quantity) 
-    # print(order)
-    while datetime.datetime.now() < end_time:   
+    interval_seconds = interval_minutes * 60
+    while datetime.datetime.now() < end_time:
         try:
             # Execute market order
-            order_result = spot_client.new_order(
+            order = client.new_order(
                 symbol=symbol,
-                side="BUY",
+                side="BUY" if trade_type.lower() == "buy" else "SELL",
                 order_type="MARKET",
                 quantity=order_quantity,
-                # timestamp=int(time.time())
             )
-            print("Order executed", order_result)
+            print(f"Order executed: {order}")
         except Exception as e:
             print("Error executing order", e)
-
+        print(f"waiting {interval_minutes} minutes for next order...")
         time.sleep(interval_seconds)

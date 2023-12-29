@@ -5,9 +5,8 @@ load_dotenv()
 # # Setup logging
 # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-
 def get_user_input():
-    dex = input("Choose your exchange platform. binance or gate: ")
+    dex = input("Choose your exchange platform. binance or gate or mexc: ")
     symbol = input("Enter the trading pair symbol (e.g., 'BNBUSDT'): ")
     trade_type = input("Specify the trade type. buy or sell: ")
     quantity = input("Enter the quantity to trade (units): ")
@@ -27,7 +26,6 @@ def calculate_order_quantity(quantity, duration_hours, interval):
     interval_seconds = interval * 60  # converting to seconds
     total_intervals = duration_hours * 3600 / interval_seconds
     return round(quantity / total_intervals, 2)
-
 
 def sanity_check(dex, token_pair_symbol, trade_type, order_quantity, duration_hours, interval_minutes):
     if not dex or dex.lower() not in ["gate", "binance", "mexc"]:
@@ -60,14 +58,16 @@ def main():
     if not is_valid:
         print("sanity check failed")
         return
-    if dex == "binance":
+    if dex.lower() == "binance":
         import bnc
         bnc.execute_twap_order(
             symbol, trade_type, order_quantity, float(duration), float(interval))
-    elif dex == "gate":
+    elif dex.lower() == "gate":
         import gate
-        gate.execute(symbol, trade_type, order_quantity, float(duration), float(interval))
-
+        gate.execute(symbol, trade_type, order_quantity, float(duration))
+    elif dex.lower() == "mexc":
+        import mexc
+        mexc.execute(symbol, trade_type, order_quantity, float(duration))
 
 if __name__ == "__main__":
     main()

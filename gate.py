@@ -7,10 +7,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+key = os.getenv("GATE_API_KEY"),
+secret = os.getenv("GATE_API_SECRET")
+
 configuration = gate_api.Configuration(
     host = "https://api.gateio.ws/api/v4",
-    key = os.getenv("GATE_API_KEY"),
-    secret = os.getenv("GATE_API_SECRET")
+    key = key,
+    secret=secret
 )
 
 api_client = gate_api.ApiClient(configuration)
