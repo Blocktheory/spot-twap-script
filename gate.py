@@ -9,7 +9,7 @@ import logging
 load_dotenv()
 
 configuration = gate_api.Configuration(
-    host = "https://fx-api-testnet.gateio.ws/api/v4",
+    host = "https://api.gateio.ws/api/v4",
     key = os.getenv("GATE_API_KEY"),
     secret = os.getenv("GATE_API_SECRET")
 )
