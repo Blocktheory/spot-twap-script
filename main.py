@@ -66,7 +66,7 @@ def main():
             symbol, trade_type, order_quantity, float(duration), float(interval))
     elif dex == "gate":
         import gate
-        gate.execute(symbol, order_quantity, float(duration))
+        gate.execute(symbol, trade_type, order_quantity, float(duration), float(interval))
 
 
 if __name__ == "__main__":
