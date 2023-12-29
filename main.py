@@ -64,10 +64,10 @@ def main():
             symbol, trade_type, order_quantity, float(duration), float(interval))
     elif dex.lower() == "gate":
         import gate
-        gate.execute(symbol, trade_type, order_quantity, float(duration))
+        gate.execute(symbol, trade_type, order_quantity, float(duration), float(interval))
     elif dex.lower() == "mexc":
         import mexc
-        mexc.execute(symbol, trade_type, order_quantity, float(duration))
+        mexc.execute(symbol, trade_type, order_quantity, float(duration), float(interval))
 
 if __name__ == "__main__":
     main()
