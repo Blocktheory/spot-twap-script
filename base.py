@@ -11,14 +11,14 @@ def main():
         print("sanity check failed")
         return
     if dex.lower() == "binance":
-        import bnc
+        from cex import bnc
         bnc.execute_twap_order(
             symbol, trade_type, order_quantity, float(duration), float(interval))
     elif dex.lower() == "gate":
-        import gate
+        from cex import gate
         gate.execute(symbol, trade_type, order_quantity, float(duration), float(interval))
     elif dex.lower() == "mexc":
-        import mexc
+        from cex import mexc
         mexc.execute(symbol, trade_type, order_quantity, float(duration), float(interval))
 
 if __name__ == "__main__":
