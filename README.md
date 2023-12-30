@@ -1,34 +1,37 @@
-# Binance TWAP Trading Script
+# Multi-Exchange TWAP Trading Script
 
 ## Introduction
-This script provides a basic implementation of a Time-Weighted Average Price (TWAP) trading strategy for the Binance cryptocurrency exchange. It allows users to execute trades evenly distributed over a specified time, minimizing the market impact.
+This script offers a sophisticated implementation of the Time-Weighted Average Price (TWAP) trading strategy, now supporting multiple cryptocurrency exchanges including Binance, Gate.io, and MEXC. It allows users to execute trades evenly distributed over a specified time across different platforms, minimizing market impact and offering more flexibility.
 
 ## Features
-- Place TWAP orders on Binance's spot market
-- Customize trade assets (e.g., BTC, ETH, SOL)
-- Specify TWAP duration in hours
-- Execute orders at regular intervals
+- Place TWAP orders on Binance, Gate.io, and MEXC's spot markets.
+- Customize trade assets (e.g., BTC, ETH, SOL) on each exchange.
+- Specify TWAP duration in hours.
+- Execute orders at regular intervals.
+- Enhanced support for multiple API key management.
 
 ## Prerequisites
 - Python 3.x
-- Binance account
-- Binance API key and secret
+- Accounts on Binance, Gate.io, MEXC (as per requirement).
+- API keys and secrets for each exchange account.
 
 ## Installation
 1. Clone the repository: 
-git clone https://github.com/Blocktheory/bnc-twap-script
+git clone https://github.com/Blocktheory/spot-twap-script
 
 1. Navigate to the project directory:
-cd [project directory]
+cd spot-twap-script
 
 1. Install the required Python packages:
 pip install -r requirements.txt
 
 ## Configuration
-Set your Binance API key and secret as environment variables:
+Set your exchange API keys and secrets as environment variables. Update the `.env` file with the following:
 
 Copy or move a file .env.sample to .env
-
-BINANCE_API_KEY='your_api_key'
-BINANCE_API_SECRET='your_api_secret'
-IS_TESTNET=True/False
+BINANCE_API_KEY=
+BINANCE_API_SECRET=
+GATE_API_KEY=
+GATE_API_SECRET=
+MEXC_API_KEY=
+MEXC_API_SECRET=
