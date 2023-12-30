@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-key = os.getenv("GATE_API_KEY"),
+key = os.getenv("GATE_API_KEY")
 secret = os.getenv("GATE_API_SECRET")
 
 configuration = gate_api.Configuration(
