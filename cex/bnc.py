@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO,
 key = os.environ.get('BINANCE_API_KEY')
 secret = os.environ.get('BINANCE_API_SECRET')
 
-client = Client(key, secret, testnet=True)
+client = Client(key, secret, testnet=False)
 
 def execute_twap_order(token_pair_symbol, trade_type, total_quantity, duration_hours, interval_minutes=1):
     end_time = datetime.datetime.now() + datetime.timedelta(hours=duration_hours)
