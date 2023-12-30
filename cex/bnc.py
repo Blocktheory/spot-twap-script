@@ -30,16 +30,22 @@ def execute_twap_order(token_pair_symbol, trade_type, total_quantity, duration_h
             print(f"Order executed: {order}")
         except Exception as e:
             print(f"Error executing order: {e}")
-        print(f"waiting {interval_minutes} minutes for next order...")
-        time.sleep(interval_seconds)
+        if datetime.datetime.now() < end_time:
+            print(f"waiting {interval_minutes} minutes for next order...")
+            time.sleep(interval_seconds)
 
-# Extra functions to get meta data if required
+# Extra functions to get account meta data if required
 def get_prices_list():
     prices = client.get_all_tickers()
+    print("prices: ", prices)
     return prices
 
 def check_balance(asset):
-    return client.get_asset_balance(asset=asset)
+    bal = client.get_asset_balance(asset=asset)
+    print("bal: ", bal)
+    return bal
 
 def get_open_orders(token_pair_symbol):
-    return client.get_open_orders(symbol=token_pair_symbol)
+    open_orders = client.get_open_orders(symbol=token_pair_symbol)
+    print("open_orders: ", open_orders)
+    return open_orders

@@ -16,9 +16,9 @@ configuration = gate_api.Configuration(
     secret=secret
 )
 
-api_client = gate_api.ApiClient(configuration)
+client = gate_api.ApiClient(configuration)
 # Create an instance of the API class
-api_instance = gate_api.SpotApi(api_client)
+instance = gate_api.SpotApi(client)
 
 def execute(symbol, trade_type, order_quantity, duration_hours, interval_minutes):
     end_time = datetime.datetime.now() + datetime.timedelta(hours=duration_hours)
@@ -27,11 +27,28 @@ def execute(symbol, trade_type, order_quantity, duration_hours, interval_minutes
     while datetime.datetime.now() < end_time:   
         try:
             # Execute market order
-            order_result = api_instance.create_order(
+            order_result = instance.create_order(
                 order=order
             )
-            print("Order executed", order_result)
+            print(f"Order executed {order_result}")
         except Exception as e:
             print("Error executing order", e)
-        print(f"waiting {interval_minutes} minutes for next order...")
-        time.sleep(interval_seconds)
+        if datetime.datetime.now() < end_time:
+            print(f"waiting {interval_minutes} minutes for next order...")
+            time.sleep(interval_seconds)
+
+# Extra functions to get account meta data if required
+def get_prices_list():
+    prices = instance.list_currency_pairs()
+    print("prices: ", prices)
+    return prices
+
+def check_balance(asset):
+    bal = gate_api.WalletApi(client).get_total_balance(currency=asset)
+    print("bal: ", bal)
+    return bal
+
+def get_open_orders():
+    open_orders = instance.list_all_open_orders()
+    print("open_orders: ", open_orders)
+    return open_orders

@@ -18,7 +18,7 @@ def main():
         from cex import gate
         gate.execute(symbol, trade_type, order_quantity, float(duration), float(interval))
     elif dex.lower() == "mexc":
-        from cex import mexc
+        from cex.mexc import mexc
         mexc.execute(symbol, trade_type, order_quantity, float(duration), float(interval))
 
 if __name__ == "__main__":
