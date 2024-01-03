@@ -40,4 +40,39 @@ def get_user_input():
     quantity = input("Enter the quantity to trade (units): ")
     duration = input("Specify the duration of the order in hours: ")
     interval = input("Enter the interval for each TWAP in minutes: ")
-    return dex, symbol, trade_type, quantity, duration, interval
+    address = None
+    if dex == "uniswap":
+        address = input("Enter the address you want to send (optional): ")
+    return dex, symbol, trade_type, quantity, duration, interval, address
+
+def load_tokens(file_path):
+    import json
+    with open(file_path, "r") as file:
+        return json.load(file)
+
+def fetch_token_data():
+    return load_tokens("./constants/tokens.json")
+
+
+def get_token_details(token_combination):
+    tokens_data = fetch_token_data()
+    if "_" in token_combination:
+        # Split the input to get individual tokens
+        token1, token2 = token_combination.split("_")
+    else:
+        # Handle it as a single token
+        token1 = token_combination
+        token2 = None
+
+    # Define a helper function to find a token in the tokens data
+    def find_token(token, tokens_data):
+        for token_data in tokens_data:
+            if token.lower() in [token_data["symbol"].lower(), token_data["address"].lower()]:
+                return token_data
+        return None
+
+    # Find each token
+    token1_details = find_token(token1, tokens_data)
+    token2_details = find_token(token2, tokens_data)
+
+    return token1_details, token2_details

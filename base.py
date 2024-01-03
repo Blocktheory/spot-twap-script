@@ -1,7 +1,7 @@
 from utils import calculate_order_quantity, get_user_input, sanity_check
 
 def main():
-    dex, symbol, trade_type, quantity, duration, interval = get_user_input()
+    dex, symbol, trade_type, quantity, duration, interval, address = get_user_input()
     order_quantity = calculate_order_quantity(
         quantity, duration, interval)
     print("placed order quantity ", order_quantity)
@@ -12,7 +12,7 @@ def main():
         return
     if dex.lower() == "binance":
         from cex import bnc
-        bnc.execute_twap_order(
+        bnc.execute(
             symbol, trade_type, order_quantity, float(duration), float(interval))
     elif dex.lower() == "gate":
         from cex import gate
@@ -22,7 +22,7 @@ def main():
         mexc.execute(symbol, trade_type, order_quantity, float(duration), float(interval))
     elif dex.lower() == "uniswap":
         from dex import uniswap
-        uniswap.get_prices_list()
+        uniswap.execute(symbol, trade_type, order_quantity, float(duration), float(interval))
 
 if __name__ == "__main__":
     main()

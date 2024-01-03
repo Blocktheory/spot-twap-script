@@ -1,5 +1,7 @@
 from uniswap import Uniswap
 from dotenv import load_dotenv
+from utils import get_token_details
+
 import time
 import datetime
 import os
@@ -8,39 +10,56 @@ import logging
 load_dotenv()
 # Setup logging
 logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+                    format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Initialize Uniswap Client
-key = os.environ.get('UNISWAP_PUBLIC_KEY')
-secret = os.environ.get('UNISWAP_PRIVATE_KEY')
-provider = os.environ.get('UNISWAP_PROVIDER')
+key = os.environ.get("UNISWAP_PUBLIC_KEY")
+secret = os.environ.get("UNISWAP_PRIVATE_KEY")
+provider = os.environ.get("UNISWAP_PROVIDER")
 version = 2
 uniswap = Uniswap(address=key, private_key=secret,
                   version=version, provider=provider)
 
-# Some token addresses we'll be using later in this guide
-eth = "0x0000000000000000000000000000000000000000"
-bat = "0x0D8775F648430679A709E98d2b0Cb6250d2887EF"
-usdc = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
-dai = "0x6B175474E89094C44Da98b954EedeAC495271d0F"
 
-def make_trade():
-    # Make a trade by specifying the quantity of the input token you wish to sell
-    uniswap.make_trade(eth, bat, 1*10**18)  # sell 1 ETH for BAT
-    uniswap.make_trade(bat, eth, 1*10**18)  # sell 1 BAT for ETH
-    uniswap.make_trade(bat, dai, 1*10**18)  # sell 1 BAT for DAI
-    uniswap.make_trade(eth, bat, 1*10**18, "0x06e70f295B6337c213DDe82D13cc198027687A7B")  # sell 1 ETH for BAT, and send the BAT to the provided address
-    uniswap.make_trade(dai, usdc, 1*10**18, fee=500)    # sell 1 DAI for USDC using the 0.05% fee pool (v3 only)
+def execute(token_pair_symbol, trade_type, total_quantity, duration_hours, interval_minutes=1, address=None):
+    token1_details, token2_details = get_token_details(token_pair_symbol)
+    if address == None:
+        address = key
+    print("Token 1 Details:", token1_details)
+    print("Token 2 Details:", token2_details)
+    print("address:", address)
+    # token1_symbol = token1_details["symbol"].lower()
+    token1_address = token1_details["address"].lower()
+    token1_decimals = token2_details["decimals"]
+    # token2_symbol = token2_details["symbol"].lower()
+    token2_address = token2_details["address"].lower()
+    # token2_decimals = token2_details["decimals"]
+    end_time = datetime.datetime.now() + datetime.timedelta(hours=duration_hours)
+    interval_seconds = interval_minutes * 60
+    quantity = total_quantity*10**token1_decimals
+    print("quantity in wei: ", quantity)
+    while datetime.datetime.now() < end_time:
+        try:
+            if trade_type.lower() == "buy":
+                order = uniswap.make_trade_output(
+                    token1_address, token2_address, quantity, address)
+                print(f"Order executed: {order}")
+            else:
+                order = uniswap.make_trade(token1_address, token2_address,
+                                           quantity, address)
+                print(f"Order executed: {order}")
+        except Exception as e:
+            print(f"Error executing order: {e}")
+        if datetime.datetime.now() < end_time:
+            print(f"waiting {interval_minutes} minutes for next order...")
+            time.sleep(interval_seconds)
+    # uniswap.make_trade(dai, usdc, 1*10**18, fee=500)
 
-def make_trade_output():
-    # Make a trade by specifying the quantity of the output token you wish to buy
-    uniswap.make_trade_output(eth, bat, 1*10**18)  # buy ETH for 1 BAT
-    uniswap.make_trade_output(bat, eth, 1*10**18)  # buy BAT for 1 ETH
-    uniswap.make_trade_output(bat, dai, 1*10**18, "0x06e70f295B6337c213DDe82D13cc198027687A7B")  # buy BAT for 1 DAI, and send the BAT to the provided address
-    uniswap.make_trade_output(dai, usdc, 1*10**8, fee=500)     # buy USDC for 1 DAI using the 0.05% fee pool (v3 only)
 
 def get_prices_list():
-    prices = uniswap.get_price_input(eth, dai, 10**18)
+    token1_details, token2_details = get_token_details("eth_dai")
+    prices = uniswap.get_price_input(
+        token1_details.address, token2_details.address, 10**18)
     print("prices: ", prices)
     return prices
 
@@ -49,5 +68,3 @@ def check_balance():
     ethBal = uniswap.get_eth_balance()
     print("ethBal: ", ethBal)
     return ethBal
-
-

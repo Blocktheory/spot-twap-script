@@ -16,7 +16,7 @@ secret = os.environ.get('BINANCE_API_SECRET')
 
 client = Client(key, secret, testnet=False)
 
-def execute_twap_order(token_pair_symbol, trade_type, total_quantity, duration_hours, interval_minutes=1):
+def execute(token_pair_symbol, trade_type, total_quantity, duration_hours, interval_minutes=1):
     end_time = datetime.datetime.now() + datetime.timedelta(hours=duration_hours)
     interval_seconds = interval_minutes * 60
     while datetime.datetime.now() < end_time:
