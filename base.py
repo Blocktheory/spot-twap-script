@@ -20,6 +20,9 @@ def main():
     elif dex.lower() == "mexc":
         from cex.mexc import mexc
         mexc.execute(symbol, trade_type, order_quantity, float(duration), float(interval))
+    elif dex.lower() == "uniswap":
+        from dex import uniswap
+        uniswap.get_prices_list()
 
 if __name__ == "__main__":
     main()

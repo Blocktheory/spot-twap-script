@@ -13,8 +13,8 @@ def calculate_order_quantity(quantity, duration_hours, interval):
     return round(quantity / total_intervals, 2)
 
 def sanity_check(dex, token_pair_symbol, trade_type, order_quantity, duration_hours, interval_minutes):
-    if not dex or dex.lower() not in ["gate", "binance", "mexc"]:
-        print("Enter valid dex (gate, binance, mexc)")
+    if not dex or dex.lower() not in ["gate", "binance", "mexc", "uniswap"]:
+        print("Enter valid dex (gate, binance, mexc, uniswap)")
         return False
     if not token_pair_symbol:
         print("Enter valid token pair")
@@ -34,7 +34,7 @@ def sanity_check(dex, token_pair_symbol, trade_type, order_quantity, duration_ho
     return True
 
 def get_user_input():
-    dex = input("Choose your exchange platform binance or gate or mexc: ")
+    dex = input("Choose your exchange platform binance or gate or mexc or uniswap: ")
     symbol = input("Enter the trading pair symbol (e.g., 'BNBUSDT'): ")
     trade_type = input("Specify the trade type to buy or sell: ")
     quantity = input("Enter the quantity to trade (units): ")
