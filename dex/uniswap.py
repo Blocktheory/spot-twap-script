@@ -20,24 +20,16 @@ version = 2
 uniswap = Uniswap(address=key, private_key=secret,
                   version=version, provider=provider)
 
-
 def execute(token_pair_symbol, trade_type, total_quantity, duration_hours, interval_minutes=1, address=None):
     token1_details, token2_details = get_token_details(token_pair_symbol)
     if address == None:
         address = key
-    print("Token 1 Details:", token1_details)
-    print("Token 2 Details:", token2_details)
-    print("address:", address)
-    # token1_symbol = token1_details["symbol"].lower()
     token1_address = token1_details["address"].lower()
     token1_decimals = token2_details["decimals"]
-    # token2_symbol = token2_details["symbol"].lower()
     token2_address = token2_details["address"].lower()
-    # token2_decimals = token2_details["decimals"]
     end_time = datetime.datetime.now() + datetime.timedelta(hours=duration_hours)
     interval_seconds = interval_minutes * 60
     quantity = total_quantity*10**token1_decimals
-    print("quantity in wei: ", quantity)
     while datetime.datetime.now() < end_time:
         try:
             if trade_type.lower() == "buy":
@@ -54,7 +46,6 @@ def execute(token_pair_symbol, trade_type, total_quantity, duration_hours, inter
             print(f"waiting {interval_minutes} minutes for next order...")
             time.sleep(interval_seconds)
     # uniswap.make_trade(dai, usdc, 1*10**18, fee=500)
-
 
 def get_prices_list():
     token1_details, token2_details = get_token_details("eth_dai")
