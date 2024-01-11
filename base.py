@@ -1,12 +1,12 @@
 from utils import calculate_order_quantity, get_user_input, sanity_check
 
 def main():
-    dex, symbol, trade_type, quantity, duration, interval, address = get_user_input()
+    dex, symbol, trade_type, quantity, duration, interval, address, chain, key = get_user_input()
     order_quantity = calculate_order_quantity(
         quantity, duration, interval)
     print("placed order quantity ", order_quantity)
     is_valid = sanity_check(dex, symbol, trade_type, order_quantity,
-                            float(duration),  float(interval))
+                            float(duration),  float(interval), address, chain, key)
     if not is_valid:
         print("sanity check failed")
         return
