@@ -1,6 +1,6 @@
 from uniswap import Uniswap
 from dotenv import load_dotenv
-from utils import get_token_details, to_checksum_address
+from utils import get_provider, get_token_details, to_checksum_address
 
 import time
 import datetime
@@ -15,23 +15,26 @@ logging.basicConfig(level=logging.INFO,
 # Initialize Uniswap Client
 pub_key = os.environ.get("UNISWAP_PUBLIC_KEY")
 secret = os.environ.get("UNISWAP_PRIVATE_KEY")
-provider = os.environ.get("UNISWAP_PROVIDER")
 version = 2
 uniswap = Uniswap(address=pub_key, private_key=secret,
-                  version=version, provider=provider)
-
+                  version=version, provider=get_provider())
 
 def execute(token_pair_symbol, trade_type, total_quantity, duration_hours, interval_minutes=1, address=None, key=None, chain=None):
-    if address == None:
+    provider = get_provider(chain)
+    uniswap.provider = provider
+    if address == None or address == "":
         address = pub_key
     if key != None:
-        secret = key
-        # re-initializing if the address and private key changes
-        global uniswap
-        uniswap = Uniswap(address=address, private_key=secret,
-                          version=version, provider=provider)
+        uniswap.private_key = key
+        uniswap.address = address
     token1_details, token2_details = get_token_details(
         token_pair_symbol, chain)
+    if not token1_details or not token1_details["address"]:
+        print("Enter valid from token symbol")
+        return
+    if not token2_details or not token2_details["address"]:
+        print("Enter valid to token symbol")
+        return
     token1_address = to_checksum_address(token1_details["address"])
     token1_decimals = token2_details["decimals"]
     token2_address = to_checksum_address(token2_details["address"])

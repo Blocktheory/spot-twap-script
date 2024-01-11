@@ -22,7 +22,8 @@ def main():
         mexc.execute(symbol, trade_type, order_quantity, float(duration), float(interval))
     elif dex.lower() == "uniswap":
         from dex import uniswap
-        uniswap.execute(symbol, trade_type, order_quantity, float(duration), float(interval))
+        uniswap.execute(symbol, trade_type, order_quantity, float(
+            duration), float(interval), address, key, chain)
 
 if __name__ == "__main__":
     main()

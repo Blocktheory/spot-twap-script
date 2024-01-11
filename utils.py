@@ -1,3 +1,11 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
+CHAIN_ID_OP = "op"
+CHAIN_ID_ETH = "eth"
+CHAIN_ID_BNB = "bnb"
+
 
 def calculate_order_quantity(quantity, duration_hours, interval):
     try:
@@ -32,8 +40,8 @@ def sanity_check(dex, token_pair_symbol, trade_type, order_quantity, duration_ho
     if not trade_type or trade_type.lower() not in ["buy", "sell"]:
         print("Enter valid trade type buy or sell")
         return False
-    if chain and chain not in ["1", "10", "56"]:
-        print("Enter valid chain id (1, 10, 56)")
+    if chain and chain.lower() not in [CHAIN_ID_ETH, CHAIN_ID_OP, CHAIN_ID_BNB]:
+        print("Enter valid chain id (eth, op, bnb)")
         return False
     if address and dex == "uniswap":
         is_valid = is_valid_eth_address(address)
@@ -60,13 +68,13 @@ def get_user_input():
     chain = None
     key = None
     if dex == "uniswap":
-        chain = input("Enter the chain Id you want to trade on (optional): ")
+        chain = input(
+            "Enter the chain Id you want to trade on eth, bnb, op (optional): ")
         address = input("Enter the address you want to send (optional): ")
-        if address != None:
+        if address != None and address != "":
             key = input(
-                "Enter the private key of the address (we're not saving any info): ")
+                "Enter the private key of the address (we're not saving any info - optional): ")
     return dex, symbol, trade_type, quantity, duration, interval, address, chain, key
-
 
 def load_tokens(file_path):
     import json
@@ -74,28 +82,25 @@ def load_tokens(file_path):
         return json.load(file)
 
 
-def fetch_token_data(chainId="1"):
-    if chainId == "1":
-        path = "./constants/tokens/eth.json"
-    elif chainId == "10":
+def fetch_token_data(chain=CHAIN_ID_ETH):
+    print("chain ", chain)
+    path = "./constants/tokens/eth.json"
+    if chain == CHAIN_ID_OP:
         path = "./constants/tokens/op.json"
-    elif chainId == "56":
+    elif chain == CHAIN_ID_BNB:
         path = "./constants/tokens/bnb.json"
-    else:
-        # default set to ethereum
-        path = "./constants/tokens/eth.json"
     return load_tokens(path)
 
 def split_known_token_pair(pair, tokens_data=[]):
     for token in tokens_data:
-        symbol = token['symbol']
-        if pair.lower().startswith(symbol.lower()):
+        symbol = token['symbol'].lower()
+        if pair.lower().startswith(symbol):
             symbol2 = pair[len(symbol):]
             return symbol, symbol2
     return pair, None
 
-def get_token_details(token_combination, chainId="1"):
-    tokens_data = fetch_token_data(chainId)
+def get_token_details(token_combination, chain=CHAIN_ID_ETH):
+    tokens_data = fetch_token_data(chain)
     if "_" in token_combination:
         # Split the input to get individual tokens
         token1, token2 = token_combination.split("_")
@@ -139,3 +144,13 @@ def is_valid_eth_private_key(key):
 def to_checksum_address(address):
     from web3 import Web3
     return Web3.to_checksum_address(address)
+
+def get_provider(chain=CHAIN_ID_ETH):
+    import os
+    provider = os.environ.get("UNISWAP_PROVIDER_ETH")
+    if chain == CHAIN_ID_OP:
+        return os.environ.get("UNISWAP_PROVIDER_OP")
+    elif chain == CHAIN_ID_BNB:
+        return os.environ.get("UNISWAP_PROVIDER_BNB")
+    else:
+        return provider
