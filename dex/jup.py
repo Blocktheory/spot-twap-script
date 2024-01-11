@@ -28,37 +28,46 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s - %(levelname)s - %(message)s")
 
-key = os.environ.get("JUPITER_PUBLIC_KEY")
+pub_key = os.environ.get("JUPITER_PUBLIC_KEY")
 secret = os.environ.get("JUPITER_PRIVATE_KEY")
+provider = os.environ.get("JUPITER_PROVIDER_SOL")
 # Define the API endpoint for quote
 quote_url = "https://quote-api.jup.ag/v6/quote"
 swap_url = "https://quote-api.jup.ag/v6/swap"
 
 
-def execute(token_pair_symbol, trade_type, total_quantity, duration_hours, interval_minutes=1, address=None):
-    # to be made dynamic
+def execute(token_pair_symbol, trade_type, total_quantity, duration_hours, interval_minutes=1, address=None, key=None, chain=None):
+    
+    private_key = secret
+    if key is not None and key != "":
+        private_key = key
+    wallet = Keypair.from_bytes(base58.b58decode(private_key))
+    public_key = wallet.pubkey()
+    public_key_str = str(public_key)
+
     slippage = 1000  # 1000 1% slippage
-    token1_details, token2_details = get_token_details(token_pair_symbol)
-    if address == None:
-        address = key
-    token1_address = token1_details["address"].lower()
-    token1_decimals = token2_details["decimals"]
-    token2_address = token2_details["address"].lower()
     end_time = datetime.datetime.now() + datetime.timedelta(hours=duration_hours)
     interval_seconds = interval_minutes * 60
     quantity = total_quantity*10**token1_decimals
+
+    token1_details, token2_details = get_token_details(
+        token_pair_symbol, chain)
+    if address == None:
+        address = pub_key
+    token1_address = token1_details["address"].lower()
+    token1_decimals = token2_details["decimals"]
+    token2_address = token2_details["address"].lower()
+    print(token1_details, token2_details)
     while datetime.datetime.now() < end_time:
         try:
             if trade_type.lower() == "buy":
-                # Need to add buy function here
                 # Define the parameters for the swap
                 params = {
-                    "inputMint": token1_address,  # SOL So11111111111111111111111111111111111111112
-                    "outputMint": token2_address,  # USDC 7iT1GRYYhEop2nV1dyCwK2MGyLmPHq47WhPGSwiqcUg5
-                    "amount": quantity,  # 10000000 0.01 SOL
-                    "slippageBps": slippage  # 1000 1% slippage
+                    "inputMint": token1_address,  
+                    "outputMint": token2_address,  
+                    "amount": quantity,  
+                    "slippageBps": slippage
                 }
-                # Send a GET request to the API
                 try:
                     quote_response = requests.get(quote_url, params=params)
                     # This will raise an HTTPError if the response was unsuccessful
@@ -68,7 +77,6 @@ def execute(token_pair_symbol, trade_type, total_quantity, duration_hours, inter
                 except Exception as err:
                     print(f"Other error occurred: {err}")
                 else:
-                    # Parse the response
                     quote_data = quote_response.json()
                 return
             else:
@@ -79,14 +87,7 @@ def execute(token_pair_symbol, trade_type, total_quantity, duration_hours, inter
         if datetime.datetime.now() < end_time:
             print(f"waiting {interval_minutes} minutes for next order...")
             time.sleep(interval_seconds)
-            
-
-    private_key = secret  # Replace with your private key
-    wallet = Keypair.from_bytes(base58.b58decode(private_key))
-    public_key = wallet.pubkey()
-    # Convert the public key to a string
-    public_key_str = str(public_key)
-
+    
     # Define the body for the swap
     body = {
         "quoteResponse": quote_data,  # Use the response from the previous /quote API call
@@ -105,10 +106,8 @@ def execute(token_pair_symbol, trade_type, total_quantity, duration_hours, inter
     if serialized_transaction is None:
         print("No 'swapTransaction' field in the response")
 
-    helis_api_key = os.getenv("HELIUS_API_KEY")
     # Create a Solana client
-    solana_client = Client(
-        f"https://mainnet.helius-rpc.com/?api-key={helis_api_key}")
+    solana_client = Client(provider)
 
     # Create a transaction
     # Decode the base64 string
@@ -141,7 +140,6 @@ def execute(token_pair_symbol, trade_type, total_quantity, duration_hours, inter
     except Exception as e:
         print("Simulation error:", e)
         return "Simulation error"
-
 
 def simulate_transaction(client, raw_txn, wallet):
     try:
